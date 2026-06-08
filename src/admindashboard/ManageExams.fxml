@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="650.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="admindashboard.ManageExamsController">
+   <children>
+      <ToolBar fx:id="manageExamsToolbar" prefHeight="50.0" prefWidth="850.0" style="-fx-background-color: #2b5876;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <Button onAction="#handleBack" style="-fx-background-color: #ffffff; -fx-cursor: hand; -fx-font-weight: bold;" text="Back to Dashboard" />
+        </items>
+      </ToolBar>
+
+      <SplitPane dividerPositions="0.5" prefHeight="600.0" prefWidth="850.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
+        <items>
+          
+          <AnchorPane>
+             <children>
+                <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background: #e6f2ff; -fx-border-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                   <content>
+                      <VBox alignment="TOP_CENTER" spacing="15.0" style="-fx-background-color: #e6f2ff; -fx-padding: 20;">
+                         <children>
+                            <Label text="Upload Daily Quiz" textFill="#2b5876">
+                               <font><Font name="System Bold" size="22.0" /></font>
+                            </Label>
+                            <Separator prefWidth="200.0" />
+                            
+                            <TextField fx:id="txtQuizTitle" prefHeight="35.0" promptText="Quiz Title (e.g., Quiz 01)" />
+                            <ComboBox fx:id="cbQuizClass" prefHeight="35.0" prefWidth="400.0" promptText="Select Target Class" />
+                            
+                            <TextField fx:id="txtQuizTimeLimit" prefHeight="35.0" promptText="Time Limit (in minutes)" />
+                            
+                            <Button onAction="#handleBrowseQuiz" prefWidth="180.0" style="-fx-background-color: #5bc0de; -fx-text-fill: white; -fx-cursor: hand;" text="Browse PDF" />
+                            <Label fx:id="lblQuizFile" style="-fx-font-style: italic;" text="No file selected" textFill="#666666" />
+
+                            <Button onAction="#handleBrowseQuizAns" prefWidth="180.0" style="-fx-background-color: #5bc0de; -fx-text-fill: white; -fx-cursor: hand;" text="Browse Answer Key (.txt)" />
+                            <Label fx:id="lblQuizAnsFile" style="-fx-font-style: italic;" text="No .txt file selected" textFill="#666666" />
+
+                            <Button onAction="#handleUploadQuiz" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14;" text="GENERATE QR CODE" />
+                            
+                            <VBox alignment="CENTER" style="-fx-background-color: white; -fx-padding: 10; -fx-border-color: #ccc; -fx-border-radius: 5; -fx-max-width: 200;">
+                               <children>
+                                  <ImageView fx:id="imgQuizQR" fitHeight="180.0" fitWidth="180.0" preserveRatio="true" />
+                               </children>
+                            </VBox>
+                         </children>
+                      </VBox>
+                   </content>
+                </ScrollPane>
+             </children>
+          </AnchorPane>
+          
+          <AnchorPane>
+             <children>
+                <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background: #fff0f0; -fx-border-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                   <content>
+                      <VBox alignment="TOP_CENTER" spacing="15.0" style="-fx-background-color: #fff0f0; -fx-padding: 20;">
+                         <children>
+                            <Label text="Upload Major Exam" textFill="#8b0000">
+                               <font><Font name="System Bold" size="22.0" /></font>
+                            </Label>
+                            <Separator prefWidth="200.0" />
+                            
+                            <TextField fx:id="txtExamTitle" prefHeight="35.0" promptText="Exam Title (e.g., Midterms)" />
+                            <ComboBox fx:id="cbExamClass" prefHeight="35.0" prefWidth="400.0" promptText="Select Target Class" />
+                            
+                            <TextField fx:id="txtExamTimeLimit" prefHeight="35.0" promptText="Time Limit (in minutes)" />
+                            
+                            <Button onAction="#handleBrowseExam" prefWidth="180.0" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-cursor: hand;" text="Browse PDF" />
+                            <Label fx:id="lblExamFile" style="-fx-font-style: italic;" text="No file selected" textFill="#666666" />
+
+                            <Button onAction="#handleBrowseExamAns" prefWidth="180.0" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-cursor: hand;" text="Browse Answer Key (.txt)" />
+                            <Label fx:id="lblExamAnsFile" style="-fx-font-style: italic;" text="No .txt file selected" textFill="#666666" />
+
+                            <Button onAction="#handleUploadExam" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14;" text="GENERATE QR CODE" />
+                            
+                            <VBox alignment="CENTER" style="-fx-background-color: white; -fx-padding: 10; -fx-border-color: #ccc; -fx-border-radius: 5; -fx-max-width: 200;">
+                               <children>
+                                  <ImageView fx:id="imgExamQR" fitHeight="180.0" fitWidth="180.0" preserveRatio="true" />
+                               </children>
+                            </VBox>
+                         </children>
+                      </VBox>
+                   </content>
+                </ScrollPane>
+             </children>
+          </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

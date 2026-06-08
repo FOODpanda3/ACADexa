@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f0f2f5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="admindashboard.StudentsscoresController">
+   <children>
+      <VBox spacing="15.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#goBack" prefHeight="35.0" prefWidth="90.0" style="-fx-background-color: #ff9a56; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 5;" text="Back" />
+                  <Label text="Gradebook / Student Scores" textFill="#1d2b53">
+                     <font>
+                        <Font name="System Bold" size="26.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #cccccc; -fx-border-radius: 8;">
+               <children>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="1. Select Section:" textFill="#1d2b53">
+                           <font><Font name="System Bold" size="12.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="cbSection" onAction="#loadStudents" prefHeight="30.0" prefWidth="180.0" promptText="Choose Section" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 3; -fx-background-radius: 3;" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="2. Exam Name:" textFill="#1d2b53">
+                           <font><Font name="System Bold" size="12.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="cbExamName" prefHeight="30.0" prefWidth="220.0" promptText="Select Uploaded Exam" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 3; -fx-background-radius: 3;" />
+                     </children>
+                  </VBox>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button mnemonicParsing="false" onAction="#loadScores" prefHeight="40.0" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Load Existing Scores">
+                     <HBox.margin>
+                        <Insets top="15.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+
+            <TableView fx:id="scoreTable" onMouseClicked="#selectStudent" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #cccccc;" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn fx:id="colID" prefWidth="150.0" text="Student ID" />
+                <TableColumn fx:id="colName" prefWidth="400.0" text="Full Name" />
+                <TableColumn fx:id="colScore" prefWidth="150.0" text="Current Score" />
+              </columns>
+            </TableView>
+
+            <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-border-color: #cccccc; -fx-border-radius: 8; -fx-background-radius: 8;">
+               <children>
+                  <VBox spacing="3.0">
+                     <children>
+                        <Label text="Grading Student:" textFill="#1d2b53">
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="lblSelectedStudent" text="No student selected" textFill="#dc3545">
+                           <font>
+                              <Font name="System Italic" size="13.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </VBox>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Label text="Enter New Score:" textFill="#1d2b53">
+                     <font><Font name="System Bold" size="13.0" /></font>
+                  </Label>
+                  <TextField fx:id="txtScoreInput" prefHeight="35.0" prefWidth="100.0" promptText="0-100" style="-fx-border-color: #1d2b53; -fx-border-radius: 3;" />
+                  <Button mnemonicParsing="false" onAction="#saveScore" prefHeight="35.0" prefWidth="130.0" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Add / Save Score" />
+                  <Button mnemonicParsing="false" onAction="#deleteScore" prefHeight="35.0" prefWidth="125.0" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Delete Score" />
+                  <Button mnemonicParsing="false" onAction="#clearScores" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Clear Scores" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

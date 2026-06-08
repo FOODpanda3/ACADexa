@@ -1,0 +1,45 @@
+Installation Guide
+Project: ACADexa
+
+Required software:
+1. Windows computer.
+2. Java/JDK with JavaFX support. This project was built as a JavaFX desktop app.
+3. XAMPP with Apache and MySQL/MariaDB for database and student answer page support.
+
+Installation steps:
+1. Extract the Admindashboard deployment ZIP file.
+2. Double-click Install.bat.
+3. If XAMPP is not installed, Install.bat can launch the bundled XAMPP installer from XAMPPInstaller.
+4. If Windows asks for permission, allow it.
+5. Open XAMPP Control Panel and start Apache and MySQL.
+6. Run the application from the ACADexa desktop shortcut or from Application/Admindashboard.exe.
+
+Manual installation steps:
+1. Extract the ACADexa deployment ZIP file.
+2. Open XAMPP Control Panel and start Apache and MySQL.
+3. Open phpMyAdmin or MySQL command line.
+4. Import Database/setup_database.sql to create the admindashboard_db database and tables.
+5. Copy Application/quiz_system to:
+   C:\xampp\htdocs\quiz_system
+6. Confirm this folder exists:
+   C:\xampp\htdocs\quiz_system\uploads
+7. Open Application.
+8. Run the application using one of these methods:
+   a. Double-click Admindashboard.exe.
+   b. Or use Run_Admindashboard.bat as a fallback.
+
+Important configuration:
+1. The app connects to MySQL using:
+   Database: admindashboard_db
+   Host: localhost
+   User: root
+   Password: blank
+2. The app stores uploaded quiz files in:
+   C:\xampp\htdocs\quiz_system\uploads
+
+Troubleshooting:
+1. If ACADexa says Java was not found, install Java/JDK and add Java to PATH.
+2. If JavaFX module errors appear, use a Java distribution that includes JavaFX or configure JavaFX modules.
+3. If database errors appear, make sure MySQL is running and setup_database.sql was imported.
+4. If student links do not open, make sure Apache is running and quiz_system is copied to htdocs.
+5. If Smart App Control blocks Admindashboard.exe, use Run_Admindashboard.bat instead.

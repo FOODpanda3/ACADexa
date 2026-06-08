@@ -1,0 +1,14 @@
+# NetBeans specific ignore rules
+build/
+dist/
+nbproject/private/
+
+# Exclude large installer binaries and deployment archives
+Deployment/Admindashboard/XAMPPInstaller/
+Deployment/JavaInstaller/
+Deployment/_package_staging/
+Deployment/Admindashboard_Deployment.zip
+
+# Log and temp files
+*.log
+*.class

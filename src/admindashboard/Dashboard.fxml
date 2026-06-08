@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.TextArea?>
+
+<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="admindashboard.DashboardController">
+   <left>
+      <VBox prefWidth="220.0" style="-fx-background-color: #1d2b53;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Admin Panel" textFill="WHITE">
+               <font><Font name="System Bold" size="22.0" /></font>
+               <VBox.margin><Insets bottom="40.0" left="20.0" top="30.0" /></VBox.margin>
+            </Label>
+            
+            <Button fx:id="btnDashboard" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleHome" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="🏠  Dashboard">
+               <padding><Insets left="30.0" /></padding>
+            </Button>
+            
+            <Button fx:id="btnStudents" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleManageClasses" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="🏫  Manage Students">
+               <padding><Insets left="30.0" /></padding>
+            </Button>
+            
+            <Button fx:id="btnExams" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleUploadAction" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📤  Manage Exams">
+               <padding><Insets left="30.0" /></padding>
+            </Button>
+            
+            <Button fx:id="btnLiveMonitor" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLiveMonitor" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📡  Live Monitor">
+               <padding><Insets left="30.0" /></padding>
+            </Button>
+
+            <Button fx:id="btnScores" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleViewScores" prefHeight="50.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📊  Student Scores">
+               <padding><Insets left="30.0" /></padding>
+            </Button>
+            
+            <Button alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogout" prefHeight="50.0" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-cursor: hand;" text="🚪  Logout">
+               <VBox.margin><Insets top="50.0" /></VBox.margin>
+               <padding><Insets left="30.0" /></padding>
+            </Button>
+
+         </children>
+      </VBox>
+   </left>
+
+   <center>
+      <BorderPane style="-fx-background-color: #f0f2f5;">
+         <padding><Insets bottom="20.0" left="30.0" right="30.0" top="20.0" /></padding>
+         
+         <top>
+            <VBox spacing="5.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label fx:id="headerLabel" text="Welcome to the Dashboard!" textFill="#1d2b53">
+                     <font><Font name="System Bold" size="28.0" /></font>
+                  </Label>
+                  <Label fx:id="statusLabel" text="Status: Ready" textFill="#666666">
+                     <font><Font size="14.0" /></font>
+                     <VBox.margin><Insets bottom="20.0" /></VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
+         </top>
+
+         <center>
+            <StackPane fx:id="contentStackPane" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox fx:id="paneHome" spacing="24.0" style="-fx-background-color: #f0f2f5;">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" spacing="18.0">
+                           <children>
+                              <VBox minHeight="130.0" prefWidth="260.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #d7dce4; -fx-border-radius: 6; -fx-padding: 18;">
+                                 <children>
+                                    <Label text="Manage Students" textFill="#1d2b53">
+                                       <font><Font name="System Bold" size="18.0" /></font>
+                                    </Label>
+                                    <Label text="Add classes, import rosters, and keep student PINs organized." textFill="#666666" wrapText="true" />
+                                    <Button mnemonicParsing="false" onAction="#handleManageClasses" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold;" text="Open Students" />
+                                 </children>
+                              </VBox>
+                              <VBox minHeight="130.0" prefWidth="260.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #d7dce4; -fx-border-radius: 6; -fx-padding: 18;">
+                                 <children>
+                                    <Label text="Manage Exams" textFill="#1d2b53">
+                                       <font><Font name="System Bold" size="18.0" /></font>
+                                    </Label>
+                                    <Label text="Upload exam PDFs, set answer keys, and generate student QR links." textFill="#666666" wrapText="true" />
+                                    <Button mnemonicParsing="false" onAction="#handleUploadAction" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold;" text="Open Exams" />
+                                 </children>
+                              </VBox>
+                              <VBox minHeight="130.0" prefWidth="260.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #d7dce4; -fx-border-radius: 6; -fx-padding: 18;">
+                                 <children>
+                                    <Label text="Live Monitor" textFill="#1d2b53">
+                                       <font><Font name="System Bold" size="18.0" /></font>
+                                    </Label>
+                                    <Label text="Watch student activity during an exam and block or unblock sessions." textFill="#666666" wrapText="true" />
+                                    <Button mnemonicParsing="false" onAction="#handleLiveMonitor" style="-fx-background-color: #8a2be2; -fx-text-fill: white; -fx-font-weight: bold;" text="Open Monitor" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+
+                        <VBox spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #d7dce4; -fx-border-radius: 6; -fx-padding: 18;">
+                           <children>
+                              <Label text="Today at a glance" textFill="#1d2b53">
+                                 <font><Font name="System Bold" size="18.0" /></font>
+                              </Label>
+                              <Label text="Use the menu on the left to manage students, prepare exams, monitor live activity, and review scores." textFill="#666666" wrapText="true" />
+                              <HBox spacing="12.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#handleViewScores" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;" text="View Scores" />
+                                    <Button mnemonicParsing="false" onAction="#handleUploadAction" style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold;" text="Prepare Exam" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+                  
+                  <VBox fx:id="paneManageClasses" managed="false" spacing="20.0" style="-fx-background-color: #f0f2f5;" visible="false">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                           <children>
+                              <TextField fx:id="txtClassName" prefWidth="200.0" promptText="Class Name" />
+                              <Button mnemonicParsing="false" onAction="#handleAddClass" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold;" text="+ Add Class" />
+                              <Button mnemonicParsing="false" onAction="#handleUploadRoster" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;" text="Import Excel/CSV" />
+                              <Button mnemonicParsing="false" onAction="#handleClearClassTable" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Clear Classes" />
+                           </children>
+                        </HBox>
+                        <TableView fx:id="classTable" VBox.vgrow="ALWAYS">
+                          <columns>
+                            <TableColumn fx:id="colStudentCode" prefWidth="150.0" text="Code" />
+                            <TableColumn fx:id="colSection" prefWidth="150.0" text="Section" />
+                            <TableColumn fx:id="colStudentName" prefWidth="300.0" text="Student Name" />
+                            <TableColumn fx:id="colPin" prefWidth="150.0" text="Secret PIN" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+
+                  <VBox fx:id="paneUpload" managed="false" spacing="15.0" style="-fx-background-color: #f0f2f5;" visible="false">
+                     <children>
+                        <HBox spacing="15.0">
+                           <children>
+                              <ComboBox fx:id="classSelector" prefWidth="200.0" promptText="Select Class Section" />
+                              <TextField fx:id="txtExamTitle" prefWidth="250.0" promptText="Exam Title" />
+                              <TextField fx:id="txtTimeLimit" prefWidth="150.0" promptText="Time Limit (mins)" />
+                           </children>
+                        </HBox>
+                        
+                        <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5;">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#handleBrowseFile" text="Browse PDF" />
+                              <Label fx:id="fileNameLabel" prefWidth="200.0" text="No file selected" />
+                              <Button mnemonicParsing="false" onAction="#handleBrowseKeyFile" text="Browse Key (.txt)" />
+                              <Label fx:id="fileNameLabelKey" prefWidth="200.0" text="No file selected" />
+                           </children>
+                        </HBox>
+
+                        <VBox spacing="6.0" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5;">
+                           <children>
+                              <Label text="Answer Key Editor (type or paste A/B/C... here)" />
+                              <TextArea fx:id="txtAnswerKeyEditor" prefRowCount="3" promptText="Example: ABCDBACD" wrapText="true" />
+                           </children>
+                        </VBox>
+                        
+                        <HBox spacing="15.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#handleGenerateQR" prefHeight="35.0" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold;" text="+ Save New Exam" />
+                              <Button mnemonicParsing="false" onAction="#handleUpdateExam" prefHeight="35.0" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold;" text="Update" />
+                              <Button mnemonicParsing="false" onAction="#handleRegradeExam" prefHeight="35.0" style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold;" text="Regrade" />
+                              <Button mnemonicParsing="false" onAction="#handleClearExamSelection" prefHeight="35.0" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;" text="Clear" />
+                              <Button mnemonicParsing="false" onAction="#handleDeleteExam" prefHeight="35.0" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Delete" />
+                              <Button mnemonicParsing="false" onAction="#handleClearUploadedExams" prefHeight="35.0" style="-fx-background-color: #c9302c; -fx-text-fill: white; -fx-font-weight: bold;" text="Clear Uploaded" />
+                              <Button mnemonicParsing="false" onAction="#handleToggleExamStatus" prefHeight="35.0" style="-fx-background-color: #8a2be2; -fx-text-fill: white; -fx-font-weight: bold;" text="🔒 Lock / Unlock" />
+                           </children>
+                        </HBox>
+                        
+                        <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <TableView fx:id="examTable" HBox.hgrow="ALWAYS">
+                                <columns>
+                                  <TableColumn fx:id="colExamId" prefWidth="50.0" text="ID" />
+                                  <TableColumn fx:id="colExamTitle" prefWidth="200.0" text="Title" />
+                                  <TableColumn fx:id="colExamClass" prefWidth="100.0" text="Class" />
+                                  <TableColumn fx:id="colExamAnswerKey" prefWidth="150.0" text="Answer Key" />
+                                  <TableColumn fx:id="colExamStatus" prefWidth="100.0" text="Status" />
+                                </columns>
+                              </TableView>
+                              <VBox alignment="TOP_CENTER" spacing="10.0">
+                                 <children>
+                                    <Label text="Scan to Take Exam" textFill="#1d2b53"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                    <ImageView fx:id="qrView" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+
+                  <VBox fx:id="paneLiveMonitor" managed="false" spacing="20.0" style="-fx-background-color: #f0f2f5;" visible="false">
+                     <children>
+                          <HBox alignment="CENTER_LEFT" spacing="15.0">
+                             <children>
+                               <ComboBox fx:id="cbLiveExamFilter" prefWidth="250.0" promptText="Select Exam to Monitor" />
+                               <TextField fx:id="txtLiveSearch" onKeyReleased="#handleLiveSearch" prefWidth="220.0" promptText="Search student or section" />
+                               <Button mnemonicParsing="false" onAction="#handleBlockLiveStudent" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold;" text="Block Student" />
+                               <Button mnemonicParsing="false" onAction="#handleUnblockLiveStudent" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold;" text="Unblock Student" />
+                               <Button mnemonicParsing="false" onAction="#handleClearLiveSessions" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Clear Offline Students" />
+                                <Label text="(Refreshes automatically every 3 seconds)" textFill="#888888" />
+                             </children>
+                          </HBox>
+                        <TableView fx:id="liveTable" VBox.vgrow="ALWAYS">
+                           <columns>
+                              <TableColumn fx:id="colLiveName" prefWidth="250.0" text="Student Name/ID" />
+                              <TableColumn fx:id="colLiveSection" prefWidth="150.0" text="Section" />
+                              <TableColumn fx:id="colLiveStatus" prefWidth="200.0" text="Status" />
+                              <TableColumn fx:id="colLiveProgress" prefWidth="150.0" text="Progress (Answered)" />
+                              <TableColumn fx:id="colLiveLastPing" prefWidth="150.0" text="Last Active" />
+                           </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+
+                  <VBox fx:id="paneViewScores" managed="false" spacing="20.0" style="-fx-background-color: #f0f2f5;" visible="false">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                           <children>
+                              <ComboBox fx:id="cbScoreSectionFilter" prefWidth="200.0" promptText="Filter by Section" />
+                              <Button mnemonicParsing="false" onAction="#handleRefreshScores" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold;" text="Refresh" />
+                              <Button mnemonicParsing="false" onAction="#handleViewStudentAnswers" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold;" text="Detailed Answers" />
+                              <Button mnemonicParsing="false" onAction="#handleDownloadScores" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;" text="Download Excel" />
+                              <Button mnemonicParsing="false" onAction="#handleClearScores" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Clear Scores" />
+                              <Button mnemonicParsing="false" onAction="#handleDeleteScore" style="-fx-background-color: #c9302c; -fx-text-fill: white; -fx-font-weight: bold;" text="🗑 Delete Selected Score" />
+                           </children>
+                        </HBox>
+                        <TableView fx:id="scoreTable" VBox.vgrow="ALWAYS">
+                           <columns>
+                              <TableColumn fx:id="colScoreStudentName" prefWidth="300.0" text="Student Name" />
+                              <TableColumn fx:id="colScoreSection" prefWidth="150.0" text="Section" />
+                              <TableColumn fx:id="colScoreResult" prefWidth="150.0" text="Score" />
+                           </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+
+               </children>
+            </StackPane>
+         </center>
+      </BorderPane>
+   </center>
+</BorderPane>

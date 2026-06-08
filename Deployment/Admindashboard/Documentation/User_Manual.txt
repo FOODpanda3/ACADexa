@@ -1,0 +1,31 @@
+User Manual
+Project: ACADexa
+
+Overview:
+ACADexa is a desktop application for managing students, quizzes/exams, answer keys, QR/student access links, live exam monitoring, and student scores.
+
+How to use:
+1. Launch the app from the ACADexa desktop shortcut or Application/Admindashboard.exe.
+2. Register an admin account on the login screen if no account exists.
+3. Log in using the registered username and password.
+4. Use the dashboard to view totals for students, exams, live sessions, and scores.
+5. Use Manage Students to add, update, delete, or organize student records by class/section.
+6. Use Upload Quiz / Manage Exams to upload quiz files, answer keys, class information, and time limits.
+7. Generate or share the student quiz link/QR code when an exam is ready.
+8. Use Live Monitoring to view student exam status and progress.
+9. Use Student Scores to view, update, or remove scores.
+10. Use View Answers to inspect submitted student answers.
+
+Key features:
+1. Admin login and registration.
+2. Student management by class/section.
+3. Quiz/exam upload and answer key management.
+4. QR/link generation for student access.
+5. Live student monitoring during exams.
+6. Score recording and review.
+7. Answer review with correct/wrong status.
+
+Notes:
+1. XAMPP Apache and MySQL must be running before using features that require the database or student answer page.
+2. Uploaded files are saved in C:\xampp\htdocs\quiz_system\uploads.
+3. Student devices must be on the same network when accessing local quiz links generated from the teacher computer.
