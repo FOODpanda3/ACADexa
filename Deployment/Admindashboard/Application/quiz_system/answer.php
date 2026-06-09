@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Display errors to prevent white screens
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -32,6 +32,46 @@ if (isset($_GET['check_block_status'])) {
     exit();
 }
 // --------------------------------------------------------------
+
+// --- NEW: AJAX TEACHER OVERRIDE UNBLOCK ---
+if (isset($_POST['teacher_override_unblock'])) {
+    $conn_override = new mysqli("localhost", "root", "", "admindashboard_db");
+    $sid = trim($_POST['sid']);
+    $exam_title = trim($_POST['title']);
+    $password = trim($_POST['password']);
+
+    if ($password !== 'admin') {
+        echo "WRONG_PASSWORD";
+        exit();
+    }
+
+    $stmt = $conn_override->prepare("SELECT id, student_id_number, full_name FROM students WHERE student_id_number = ? OR full_name = ?");
+    $stmt->bind_param("ss", $sid, $sid);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if ($row = $res->fetch_assoc()) {
+        $student_db_id = $row['id'];
+        $db_sid = $row['student_id_number'];
+
+        $score_stmt = $conn_override->prepare("DELETE FROM exam_scores WHERE student_id = ? AND exam_name = ?");
+        $score_stmt->bind_param("is", $student_db_id, $exam_title);
+        $score_stmt->execute();
+
+        $ans_stmt = $conn_override->prepare("DELETE FROM student_answers WHERE student_id = ? AND exam_name = ?");
+        $ans_stmt->bind_param("is", $student_db_id, $exam_title);
+        $ans_stmt->execute();
+
+        $live_stmt = $conn_override->prepare("UPDATE live_sessions SET status = 'Active', progress = 'Resumed' WHERE student_id_number = ? AND exam_title = ?");
+        $live_stmt->bind_param("ss", $db_sid, $exam_title);
+        $live_stmt->execute();
+
+        echo "OK";
+    } else {
+        echo "STUDENT_NOT_FOUND";
+    }
+    exit();
+}
 
 // --- NEW: AJAX PIN VERIFICATION (Runs when they click submit) ---
 if (isset($_POST['check_pin_ajax'])) {
@@ -163,7 +203,7 @@ if (isset($_GET['live_ping'])) {
             $live_stmt = $conn_live->prepare("INSERT INTO live_sessions (student_id_number, student_name, section, exam_title, device_token, status, progress) 
                 SELECT student_id_number, full_name, class_name, ?, ?, ?, ? 
                 FROM students WHERE student_id_number = ? OR full_name = ?
-                ON DUPLICATE KEY UPDATE last_ping = NOW(), device_token = VALUES(device_token), progress = VALUES(progress), status = VALUES(status)");
+                ON DUPLICATE KEY UPDATE last_ping = NOW(), device_token = VALUES(device_token), progress = VALUES(progress), status = IF(status IN ('Teacher Blocked', 'Blocked'), status, VALUES(status))");
             $live_stmt->bind_param("ssssss", $title, $device_token, $status, $prog, $sid, $sid);
             $live_stmt->execute();
         }
@@ -1005,7 +1045,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['check_pin_ajax'])) {
             overlay.innerHTML = `
                 <h1 style='color:white; font-size: 48px; margin-bottom: 8px;'>Teacher Blocked</h1>
                 <h2 style='color:white;'>Your teacher has paused your exam.</h2>
-                <p style='color:white; font-size:18px;'>Please wait until you are unblocked to continue.</p>
+                <p style='color:white; font-size:18px; margin-bottom: 20px;'>Please wait until you are unblocked to continue.</p>
+                <button onclick="teacherUnblock()" style="padding: 10px 20px; background: #222; color: white; border: 2px solid #555; border-radius: 5px; cursor: pointer;">
+                    Manual Teacher Override
+                </button>
             `;
             document.body.style.filter = "blur(15px)";
         }
@@ -1046,15 +1089,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['check_pin_ajax'])) {
         // --- NEW: TEACHER UNBLOCK FUNCTION ---
         function teacherUnblock() {
             let attempt = prompt("Enter Teacher Password:");
-            if (attempt === "admin") {
-                let sid = document.getElementById('final-sid').value.trim();
-                localStorage.removeItem('exam_blocked_' + examTitle + '_' + sid);
-                localStorage.removeItem('cheat_warnings_' + examTitle + '_' + sid);
-                alert("Override successful. Reloading...");
-                window.location.reload();
-            } else if (attempt !== null) { 
-                alert("Incorrect Password."); 
+            if (attempt === null) return;
+
+            let sid = getActiveStudentId();
+            if (!sid) {
+                alert("Student ID/Name not found.");
+                return;
             }
+
+            let formData = new FormData();
+            formData.append('teacher_override_unblock', '1');
+            formData.append('sid', sid);
+            formData.append('title', examTitle);
+            formData.append('password', attempt);
+
+            fetch('', { method: 'POST', body: formData })
+            .then(res => res.text())
+            .then(txt => {
+                let result = txt.trim();
+                if (result === 'OK') {
+                    localStorage.removeItem('exam_blocked_' + examTitle + '_' + sid);
+                    localStorage.removeItem('cheat_warnings_' + examTitle + '_' + sid);
+                    alert("Override successful. Reloading...");
+                    window.location.reload();
+                } else if (result === 'WRONG_PASSWORD') {
+                    alert("Incorrect Password.");
+                } else {
+                    alert("Unblock failed. Student record not found.");
+                }
+            })
+            .catch(() => {
+                alert("Network error. Could not connect to server.");
+            });
         }
 
         // --- STEP 2: SHOW PIN MODAL ON SUBMIT ---
