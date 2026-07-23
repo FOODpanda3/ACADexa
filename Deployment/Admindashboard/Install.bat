@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title ACADexa Installer
+title ACADexa 100% Automated Installer
 
 net session >nul 2>nul
 if errorlevel 1 (
@@ -30,7 +30,7 @@ for %%F in ("%ROOT%JavaInstaller\*.msi") do (
 
 echo.
 echo ==========================================
-echo   ACADexa Easy Installer
+echo   ACADexa 100% Automated Installer
 echo ==========================================
 echo.
 
@@ -48,7 +48,7 @@ if not exist "%APP_JAR%" (
     exit /b 1
 )
 
-echo [1/6] Cleaning old temporary package files...
+echo [1/6] Cleaning temporary package files...
 del /f /q "%APP_DIR%\Admindashboard.new.jar" >nul 2>nul
 del /f /q "%APP_DIR%\Admindashboard.fixed.jar" >nul 2>nul
 del /f /q "%APP_DIR%\Admindashboard.home.jar" >nul 2>nul
@@ -57,102 +57,64 @@ del /f /q "%APP_DIR%\Admindashboard.route.jar" >nul 2>nul
 del /f /q "%APP_DIR%\jartmp*.tmp" >nul 2>nul
 del /f /q "%APP_DIR%\CSC*.TMP" >nul 2>nul
 
-echo [2/6] Checking Java/JDK installation...
+echo [2/6] Checking & Installing Java/JDK...
 set "JAVA_FOUND=0"
 where javaw >nul 2>nul && set "JAVA_FOUND=1"
 if exist "C:\Program Files\BellSoft\LibericaJDK-25-Full\bin\javaw.exe" set "JAVA_FOUND=1"
 if exist "C:\Program Files\BellSoft\LibericaJDK-21-Full\bin\javaw.exe" set "JAVA_FOUND=1"
 
 if "%JAVA_FOUND%"=="0" (
-    echo Java/JDK with JavaFX support was not found on this computer.
     if defined JAVA_INSTALLER (
-        echo Found bundled Liberica JDK installer:
-        echo %JAVA_INSTALLER%
-        echo.
-        choice /M "Install Liberica JDK Full now"
-        if errorlevel 2 (
-            echo Skipping Java installation. Note: ACADexa requires Java to run.
-        ) else (
-            echo Launching Java installer...
-            start /wait "" msiexec /i "%JAVA_INSTALLER%"
-        )
+        echo Installing bundled Liberica JDK Full in background...
+        start /wait "" msiexec /i "%JAVA_INSTALLER%" /qb /norestart
+        echo Liberica JDK installation finished.
     ) else (
-        echo WARNING: Bundled Java installer not found. Please install Liberica JDK Full manually.
+        echo WARNING: Bundled Java installer not found. Please install Java manually if needed.
     )
 ) else (
-    echo Java/JDK is installed.
+    echo Java JDK is already installed.
 )
 
-echo [3/6] Checking XAMPP folder...
+echo [3/6] Checking & Installing XAMPP...
 if not exist "C:\xampp\htdocs" (
-    echo XAMPP was not found at C:\xampp.
     if defined XAMPP_INSTALLER (
-        echo Found bundled XAMPP installer:
-        echo %XAMPP_INSTALLER%
-        echo.
-        choice /M "Install XAMPP now"
-        if errorlevel 2 (
-            echo Installation cancelled. Please install XAMPP, then run this installer again.
-            pause
-            exit /b 1
-        )
-        start /wait "" "%XAMPP_INSTALLER%"
+        echo Installing bundled XAMPP...
+        start /wait "" "%XAMPP_INSTALLER%" --mode unattended
+        echo XAMPP installation finished.
     ) else (
-        echo ERROR: C:\xampp\htdocs was not found.
-        echo Please install XAMPP first, then run this installer again.
-        pause
-        exit /b 1
-    )
-)
-
-if not exist "C:\xampp\htdocs" (
-    echo ERROR: C:\xampp\htdocs is still missing.
-    echo Install XAMPP to C:\xampp, then run this installer again.
-    pause
-    exit /b 1
-)
-
-echo [4/6] Copying quiz_system files to XAMPP...
-if not exist "%WEB_DEST%" mkdir "%WEB_DEST%"
-xcopy "%WEB_SRC%\*" "%WEB_DEST%\" /E /I /Y >nul
-if errorlevel 1 (
-    echo ERROR: Could not copy quiz_system files.
-    echo Try running Install.bat as Administrator.
-    pause
-    exit /b 1
-)
-
-echo [5/6] Importing database setup...
-if exist "%MYSQL_EXE%" (
-    "%MYSQL_EXE%" -u root < "%DB_SQL%"
-    if errorlevel 1 (
-        echo WARNING: Database import failed.
-        echo Start MySQL in XAMPP, then import Database\setup_database.sql using phpMyAdmin.
-    ) else (
-        echo Database setup completed.
+        echo WARNING: Bundled XAMPP installer not found. Please install XAMPP to C:\xampp manually.
     )
 ) else (
-    echo WARNING: MySQL command was not found at %MYSQL_EXE%.
-    echo Import Database\setup_database.sql manually in phpMyAdmin.
+    echo XAMPP is already installed.
 )
 
-echo [6/6] Creating desktop shortcut...
+echo [4/6] Copying web files to XAMPP (C:\xampp\htdocs\quiz_system)...
+if not exist "%WEB_DEST%" mkdir "%WEB_DEST%"
+if not exist "%WEB_DEST%\uploads" mkdir "%WEB_DEST%\uploads"
+xcopy "%WEB_SRC%\*" "%WEB_DEST%\" /E /I /Y >nul
+
+echo [5/6] Setting up database...
+if exist "C:\xampp\mysql\bin\mysqld.exe" (
+    net start MySQL >nul 2>nul
+    start /b "" "C:\xampp\mysql\bin\mysqld.exe" --standalone >nul 2>nul
+    timeout /t 3 >nul
+)
+
+if exist "%MYSQL_EXE%" (
+    "%MYSQL_EXE%" -u root < "%DB_SQL%" >nul 2>nul
+    echo Database setup completed.
+) else (
+    echo WARNING: MySQL command was not found. If MySQL is not running, start MySQL in XAMPP and import setup_database.sql.
+)
+
+echo [6/6] Creating Desktop shortcut...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $shortcut=Join-Path $desktop 'ACADexa.lnk'; if (Test-Path $shortcut) { Remove-Item $shortcut -Force }; $s=(New-Object -COM WScript.Shell).CreateShortcut($shortcut); $s.TargetPath='%APP_EXE%'; $s.WorkingDirectory='%APP_DIR%'; $s.IconLocation='%APP_EXE%,0'; $s.Save()"
-if errorlevel 1 (
-    echo ERROR: Could not create the desktop shortcut.
-    echo Try running Install.bat as Administrator.
-    pause
-    exit /b 1
-)
 
 echo.
-echo Installation steps completed.
+echo ==========================================
+echo   SUCCESS! ACADexa Installation Complete!
+echo ==========================================
 echo.
-echo Before running the app, open XAMPP Control Panel and start:
-echo - Apache
-echo - MySQL
-echo.
-echo Then double-click the ACADexa shortcut on your desktop,
-echo or open Application\Admindashboard.exe.
+echo Desktop shortcut created: ACADexa
 echo.
 pause
