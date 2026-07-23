@@ -150,17 +150,15 @@ public class ManageExamsController implements Initializable {
             Path destination = Paths.get(UPLOAD_DIR + pdfFile.getName());
             Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
 
-            // --- CHANGED: Now uses the smart IP finder method instead of InetAddress.getLocalHost() ---
-            String localIP = getLocalWiFiIP();
-            
             // Encode parameters to handle spaces and special characters safely
             String encodedClass = URLEncoder.encode(targetClass, StandardCharsets.UTF_8.toString());
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString());
             String encodedPdf = URLEncoder.encode(pdfFile.getName(), StandardCharsets.UTF_8.toString());
 
-            // Added &timeLimit= to the generated URL string so the PHP system knows about it
-            String studentURL = String.format("http://%s/quiz_system/answer.php?class=%s&title=%s&pdf=%s&q=%d&timeLimit=%d",
-                                localIP, encodedClass, encodedTitle, encodedPdf, validQuestionCount, timeLimit);
+            String queryParams = String.format("answer.php?class=%s&title=%s&pdf=%s&q=%d&timeLimit=%d",
+                                encodedClass, encodedTitle, encodedPdf, validQuestionCount, timeLimit);
+
+            String studentURL = NetworkConfig.buildStudentURL(queryParams);
 
             generateQRCode(studentURL, qrView);
             
@@ -273,60 +271,11 @@ public class ManageExamsController implements Initializable {
         a.showAndWait();
     }
 
-    // --- SMART WIFI IP FINDER (NEW METHOD ADDED HERE) ---
-   // --- 100% AUTOMATIC SMART IP FINDER (WORKS OFFLINE & ONLINE) ---
+    @FXML
+    private void handleConfigureNetwork(ActionEvent event) {
+        NetworkConfig.showConfigDialog();
+    }
+
     private String getLocalWiFiIP() {
-        // Attempt 1: Try internet route (Works if you have an active data/web connection)
-        try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-            socket.connect(java.net.InetAddress.getByName("8.8.8.8"), 10002);
-            String ip = socket.getLocalAddress().getHostAddress();
-            if (ip != null && !ip.equals("0.0.0.0")) {
-                System.out.println("Found IP (Internet): " + ip);
-                return ip;
-            }
-        } catch (Exception e) {
-            System.out.println("No internet detected. Switching to offline router mode...");
-        }
-
-        // Attempt 2: Try local router route (Works on Wi-Fi/Hotspot even with NO internet)
-        try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-            socket.connect(java.net.InetAddress.getByName("192.168.1.1"), 10002); // Common local gateway
-            String ip = socket.getLocalAddress().getHostAddress();
-            if (ip != null && !ip.equals("0.0.0.0") && !ip.startsWith("127.")) {
-                System.out.println("Found IP (Offline Router): " + ip);
-                return ip;
-            }
-        } catch (Exception e) {
-            System.out.println("Router ping failed. Searching hardware...");
-        }
-
-        // Attempt 3: Hardware Deep Scan (Ignores VirtualBox/VMware/VPNs)
-        try {
-            java.util.Enumeration<java.net.NetworkInterface> interfaces = java.net.NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                java.net.NetworkInterface iface = interfaces.nextElement();
-                
-                // Skip dead interfaces, loopbacks, and virtuals
-                if (iface.isLoopback() || !iface.isUp() || iface.isVirtual()) continue;
-                
-                // Block fake virtual adapters
-                String name = iface.getDisplayName().toLowerCase();
-                if (name.contains("vmware") || name.contains("virtualbox") || name.contains("hyper-v") || name.contains("wsl") || name.contains("vpn")) continue;
-
-                java.util.Enumeration<java.net.InetAddress> addresses = iface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    java.net.InetAddress addr = addresses.nextElement();
-                    // Grab the first real IPv4 address
-                    if (addr instanceof java.net.Inet4Address) {
-                        System.out.println("Found IP (Hardware Scan): " + addr.getHostAddress());
-                        return addr.getHostAddress();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Absolute last resort fallback
-        return "127.0.0.1";
+        return NetworkConfig.getLocalWiFiIP();
     }}

@@ -670,18 +670,18 @@ public class DashboardController implements Initializable {
             if (title == null) title = "Unknown";
             if (section == null) section = "Unknown";
 
-            String localIP = getLocalWiFiIP();
             String timeLimit = (txtTimeLimit != null && !txtTimeLimit.getText().isEmpty()) ? txtTimeLimit.getText() : "60";
 
-            String studentURL = String.format(
-                "http://%s/quiz_system/answer.php?class=%s&title=%s&pdf=%s&q=%d&timeLimit=%s",
-                localIP,
+            String queryParams = String.format(
+                "answer.php?class=%s&title=%s&pdf=%s&q=%d&timeLimit=%s",
                 URLEncoder.encode(section, StandardCharsets.UTF_8.toString()),
                 URLEncoder.encode(title, StandardCharsets.UTF_8.toString()),
                 URLEncoder.encode(title, StandardCharsets.UTF_8.toString()),
                 questionCount,
                 URLEncoder.encode(timeLimit, StandardCharsets.UTF_8.toString())
             );
+
+            String studentURL = NetworkConfig.buildStudentURL(queryParams);
 
             QRCodeWriter qr = new QRCodeWriter();
             BitMatrix matrix = qr.encode(studentURL, BarcodeFormat.QR_CODE, 200, 200);
@@ -694,46 +694,12 @@ public class DashboardController implements Initializable {
     }
 
     private String getLocalWiFiIP() {
-        try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-            socket.connect(java.net.InetAddress.getByName("8.8.8.8"), 10002);
-            String ip = socket.getLocalAddress().getHostAddress();
-            if (ip != null && !ip.equals("0.0.0.0")) {
-                return ip;
-            }
-        } catch (Exception e) {
-        }
+        return NetworkConfig.getLocalWiFiIP();
+    }
 
-        try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-            socket.connect(java.net.InetAddress.getByName("192.168.1.1"), 10002);
-            String ip = socket.getLocalAddress().getHostAddress();
-            if (ip != null && !ip.equals("0.0.0.0") && !ip.startsWith("127.")) {
-                return ip;
-            }
-        } catch (Exception e) {
-        }
-
-        try {
-            java.util.Enumeration<java.net.NetworkInterface> interfaces = java.net.NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                java.net.NetworkInterface iface = interfaces.nextElement();
-                if (iface.isLoopback() || !iface.isUp() || iface.isVirtual()) continue;
-
-                String name = iface.getDisplayName().toLowerCase();
-                if (name.contains("vmware") || name.contains("virtualbox") || name.contains("hyper-v")
-                        || name.contains("wsl") || name.contains("vpn")) continue;
-
-                java.util.Enumeration<java.net.InetAddress> addresses = iface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    java.net.InetAddress addr = addresses.nextElement();
-                    if (addr instanceof java.net.Inet4Address) {
-                        return addr.getHostAddress();
-                    }
-                }
-            }
-        } catch (Exception e) {
-        }
-
-        return "127.0.0.1";
+    @FXML
+    private void handleConfigureNetwork(ActionEvent event) {
+        NetworkConfig.showConfigDialog();
     }
 
     @FXML private void handleBrowseFile(ActionEvent e) {
