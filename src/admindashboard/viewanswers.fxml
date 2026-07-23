@@ -31,9 +31,14 @@
 
       <Separator prefWidth="200.0" />
       
-      <Label text="Submitted Answers:" textFill="#666666">
-         <font><Font name="System Italic" size="14.0" /></font>
-      </Label>
+      <HBox spacing="20.0" alignment="CENTER_LEFT">
+         <children>
+            <Label text="Submitted Answers:" textFill="#666666">
+               <font><Font name="System Italic" size="14.0" /></font>
+            </Label>
+            <Label fx:id="lblSummary" text="Correct: 0 | Wrong: 0" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
+         </children>
+      </HBox>
 
       <ListView fx:id="answerListView" VBox.vgrow="ALWAYS" style="-fx-background-radius: 5; -fx-border-color: #cccccc;" />
       

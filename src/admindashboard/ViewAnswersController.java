@@ -18,6 +18,7 @@ public class ViewAnswersController {
 
     @FXML private Label lblName;
     @FXML private Label lblSection;
+    @FXML private Label lblSummary;
     @FXML private ListView<String> answerListView;
 
     private final String DB_URL = "jdbc:mysql://localhost:3306/admindashboard_db";
@@ -42,12 +43,12 @@ public class ViewAnswersController {
                         } else {
                             setText(item);
 
-                            if (item.contains("Correct")) {
-                                setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
-                            } else if (item.contains("Wrong")) {
-                                setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                            if (item.contains("✔ CORRECT")) {
+                                setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 13px;");
+                            } else if (item.contains("✘ WRONG")) {
+                                setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 13px;");
                             } else {
-                                setStyle("-fx-text-fill: black;");
+                                setStyle("-fx-text-fill: #333333;");
                             }
                         }
                     }
@@ -74,6 +75,8 @@ public class ViewAnswersController {
             ResultSet rs = pstmt.executeQuery();
 
             boolean hasData = false;
+            int correctCount = 0;
+            int wrongCount = 0;
 
             while (rs.next()) {
                 hasData = true;
@@ -82,16 +85,33 @@ public class ViewAnswersController {
                 String correctAns = rs.getString("correct_answer");
                 boolean isCorrect = rs.getBoolean("is_correct");
 
-                String status = isCorrect ? "Correct" : "Wrong";
-                String rowText = String.format("Question %d: %s  (Correct Answer: %s) -> %s",
-                        qNum, studentAns, correctAns, status);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    wrongCount++;
+                }
+
+                String status = isCorrect ? "✔ CORRECT" : "✘ WRONG";
+                String rowText = String.format("Q%d: Student Answer: [%s] | Correct Answer: [%s] -> %s",
+                        qNum, 
+                        (studentAns != null && !studentAns.isEmpty() ? studentAns : "No Answer"), 
+                        (correctAns != null ? correctAns : "-"), 
+                        status);
 
                 answerListView.getItems().add(rowText);
             }
 
+            if (lblSummary != null) {
+                int total = correctCount + wrongCount;
+                lblSummary.setText(String.format("Correct: %d  |  Wrong: %d  |  Total: %d", correctCount, wrongCount, total));
+                lblSummary.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #1d2b53;");
+            }
+
             if (!hasData) {
                 answerListView.getItems().add("No answers found in the database for this student.");
-                answerListView.getItems().add("Check PHPMyAdmin to verify if the web app is saving answers properly.");
+                if (lblSummary != null) {
+                    lblSummary.setText("Correct: 0  |  Wrong: 0");
+                }
             }
 
         } catch (SQLException e) {
