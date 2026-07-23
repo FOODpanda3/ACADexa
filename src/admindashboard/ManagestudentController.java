@@ -25,8 +25,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -38,12 +40,15 @@ public class ManagestudentController implements Initializable {
     @FXML private TableView<DashboardController.Student> studentTable;
     @FXML private TableColumn<DashboardController.Student, String> colID, colName, colSection, colPin;
     @FXML private ComboBox<String> cbSectionFilter;
+    @FXML private ComboBox<String> cbSortBy;
+    @FXML private Label lblSelectedStudentInfo;
     @FXML private TextField txtStudentName;
     @FXML private TextField txtStudentSection;
     @FXML private TextField txtSearchStudent;
 
     private final ObservableList<DashboardController.Student> allStudents = FXCollections.observableArrayList();
     private FilteredList<DashboardController.Student> filteredStudents;
+    private javafx.collections.transformation.SortedList<DashboardController.Student> sortedStudents;
 
     private final String DB_URL = "jdbc:mysql://localhost:3306/admindashboard_db";
     private final String DB_USER = "root";
@@ -58,10 +63,43 @@ public class ManagestudentController implements Initializable {
         colSection.setCellValueFactory(new PropertyValueFactory<>("section"));
         colPin.setCellValueFactory(new PropertyValueFactory<>("pin"));
 
+        populateSortDropdown();
         loadDataFromDatabase();
         populateFilter();
+        
         filteredStudents = new FilteredList<>(allStudents, s -> true);
-        studentTable.setItems(filteredStudents);
+        sortedStudents = new javafx.collections.transformation.SortedList<>(filteredStudents);
+        sortedStudents.comparatorProperty().bind(studentTable.comparatorProperty());
+        studentTable.setItems(sortedStudents);
+
+        // Selection listener to display selected student's code and PIN prominently
+        studentTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null) {
+                String pinText = (newSel.getPin() != null && !newSel.getPin().trim().isEmpty()) ? newSel.getPin() : "[No PIN]";
+                if (lblSelectedStudentInfo != null) {
+                    lblSelectedStudentInfo.setText(String.format("Selected Student: %s   |   Student Code: %s   |   PIN: %s", 
+                            newSel.getFullName(), newSel.getStudentCode(), pinText));
+                }
+            } else {
+                if (lblSelectedStudentInfo != null) {
+                    lblSelectedStudentInfo.setText("Select a student from the table below to view and copy their Code & PIN.");
+                }
+            }
+        });
+    }
+
+    private void populateSortDropdown() {
+        if (cbSortBy != null) {
+            cbSortBy.getItems().clear();
+            cbSortBy.getItems().addAll(
+                "Name (A - Z)",
+                "Name (Z - A)",
+                "Section / Class",
+                "Student ID Code",
+                "Missing PIN First"
+            );
+            cbSortBy.getSelectionModel().select("Name (A - Z)");
+        }
     }
 
     private void loadDataFromDatabase() {
@@ -250,6 +288,60 @@ public class ManagestudentController implements Initializable {
     }
 
     @FXML
+    private void handleSort(Event event) {
+        applySorting();
+    }
+
+    private void applySorting() {
+        String sortChoice = cbSortBy != null && cbSortBy.getValue() != null ? cbSortBy.getValue() : "Name (A - Z)";
+        
+        switch (sortChoice) {
+            case "Name (Z - A)":
+                allStudents.sort((a, b) -> b.getFullName().compareToIgnoreCase(a.getFullName()));
+                break;
+            case "Section / Class":
+                allStudents.sort((a, b) -> {
+                    int res = a.getSection().compareToIgnoreCase(b.getSection());
+                    return res != 0 ? res : a.getFullName().compareToIgnoreCase(b.getFullName());
+                });
+                break;
+            case "Student ID Code":
+                allStudents.sort((a, b) -> a.getStudentCode().compareToIgnoreCase(b.getStudentCode()));
+                break;
+            case "Missing PIN First":
+                allStudents.sort((a, b) -> {
+                    boolean aEmpty = a.getPin() == null || a.getPin().trim().isEmpty();
+                    boolean bEmpty = b.getPin() == null || b.getPin().trim().isEmpty();
+                    if (aEmpty != bEmpty) return aEmpty ? -1 : 1;
+                    return a.getFullName().compareToIgnoreCase(b.getFullName());
+                });
+                break;
+            case "Name (A - Z)":
+            default:
+                allStudents.sort((a, b) -> a.getFullName().compareToIgnoreCase(b.getFullName()));
+                break;
+        }
+    }
+
+    @FXML
+    private void handleCopyCode(ActionEvent event) {
+        DashboardController.Student selected = studentTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("No Selection", "Please select a student from the table first.");
+            return;
+        }
+
+        String pinStr = (selected.getPin() != null && !selected.getPin().trim().isEmpty()) ? selected.getPin() : "[No PIN]";
+        String copyText = String.format("Student: %s | Student Code: %s | PIN: %s", selected.getFullName(), selected.getStudentCode(), pinStr);
+
+        javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+        content.putString(copyText);
+        javafx.scene.input.Clipboard.getSystemClipboard().setContent(content);
+
+        showInfo("Copied!", "Copied to Clipboard:\n" + copyText);
+    }
+
+    @FXML
     private void handleFilter(Event event) {
         String selected = cbSectionFilter.getValue();
         String search = txtSearchStudent != null && txtSearchStudent.getText() != null
@@ -269,8 +361,11 @@ public class ManagestudentController implements Initializable {
             String code = student.getStudentCode() == null ? "" : student.getStudentCode().toLowerCase();
             String name = student.getFullName() == null ? "" : student.getFullName().toLowerCase();
             String section = student.getSection() == null ? "" : student.getSection().toLowerCase();
-            return code.contains(search) || name.contains(search) || section.contains(search);
+            String pin = student.getPin() == null ? "" : student.getPin().toLowerCase();
+            return code.contains(search) || name.contains(search) || section.contains(search) || pin.contains(search);
         });
+
+        applySorting();
     }
 
     @FXML

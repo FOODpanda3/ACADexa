@@ -17,21 +17,25 @@
    <children>
       <VBox spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
          <children>
-            <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
                <children>
-                  <Button fx:id="btnBack" mnemonicParsing="false" onAction="#goBack" prefHeight="35.0" prefWidth="90.0" style="-fx-background-color: #ff9a56; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 5;" text="Back" />
+                  <Button fx:id="btnBack" mnemonicParsing="false" onAction="#goBack" prefHeight="35.0" prefWidth="80.0" style="-fx-background-color: #ff9a56; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-radius: 5;" text="Back" />
                   <Label text="Student Records" textFill="#1d2b53">
-                     <font><Font name="System Bold" size="26.0" /></font>
+                     <font><Font name="System Bold" size="24.0" /></font>
                   </Label>
                   <Region HBox.hgrow="ALWAYS" />
                   <Label text="Search:" textFill="#1d2b53">
-                     <font><Font name="System Bold" size="14.0" /></font>
+                     <font><Font name="System Bold" size="13.0" /></font>
                   </Label>
-                  <TextField fx:id="txtSearchStudent" onKeyReleased="#handleFilter" prefHeight="35.0" prefWidth="220.0" promptText="Search name or ID" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 5; -fx-background-radius: 5;" />
-                  <Label text="Filter Section:" textFill="#1d2b53">
-                     <font><Font name="System Bold" size="14.0" /></font>
+                  <TextField fx:id="txtSearchStudent" onKeyReleased="#handleFilter" prefHeight="35.0" prefWidth="180.0" promptText="Search name, ID or PIN" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 5; -fx-background-radius: 5;" />
+                  <Label text="Section:" textFill="#1d2b53">
+                     <font><Font name="System Bold" size="13.0" /></font>
                   </Label>
-                  <ComboBox fx:id="cbSectionFilter" onAction="#handleFilter" prefHeight="35.0" prefWidth="200.0" promptText="All Sections" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 5; -fx-background-radius: 5;" />
+                  <ComboBox fx:id="cbSectionFilter" onAction="#handleFilter" prefHeight="35.0" prefWidth="140.0" promptText="All Sections" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 5; -fx-background-radius: 5;" />
+                  <Label text="Sort By:" textFill="#1d2b53">
+                     <font><Font name="System Bold" size="13.0" /></font>
+                  </Label>
+                  <ComboBox fx:id="cbSortBy" onAction="#handleSort" prefHeight="35.0" prefWidth="150.0" promptText="Sort By" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 5; -fx-background-radius: 5;" />
                </children>
             </HBox>
 
@@ -60,6 +64,14 @@
             </HBox>
 
             <Separator prefWidth="200.0" />
+
+            <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #ffffff; -fx-padding: 10 15 10 15; -fx-background-radius: 5; -fx-border-color: #2b5876; -fx-border-radius: 5; -fx-border-width: 1.5;">
+               <children>
+                  <Label fx:id="lblSelectedStudentInfo" text="Select a student from the table below to view and copy their Code &amp; PIN." style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #1d2b53;" HBox.hgrow="ALWAYS" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnCopyCode" mnemonicParsing="false" onAction="#handleCopyCode" prefHeight="32.0" style="-fx-background-color: #2b5876; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="📋 Copy Code &amp; PIN" />
+               </children>
+            </HBox>
 
             <TableView fx:id="studentTable" style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #cccccc;" VBox.vgrow="ALWAYS">
               <columns>
