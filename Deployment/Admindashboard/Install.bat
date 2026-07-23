@@ -18,9 +18,14 @@ set "WEB_DEST=C:\xampp\htdocs\quiz_system"
 set "DB_SQL=%ROOT%Database\setup_database.sql"
 set "MYSQL_EXE=C:\xampp\mysql\bin\mysql.exe"
 set "XAMPP_INSTALLER="
+set "JAVA_INSTALLER="
 
 for %%F in ("%ROOT%XAMPPInstaller\xampp*.exe") do (
     if exist "%%~fF" set "XAMPP_INSTALLER=%%~fF"
+)
+
+for %%F in ("%ROOT%JavaInstaller\*.msi") do (
+    if exist "%%~fF" set "JAVA_INSTALLER=%%~fF"
 )
 
 echo.
@@ -43,7 +48,7 @@ if not exist "%APP_JAR%" (
     exit /b 1
 )
 
-echo [1/5] Cleaning old temporary package files...
+echo [1/6] Cleaning old temporary package files...
 del /f /q "%APP_DIR%\Admindashboard.new.jar" >nul 2>nul
 del /f /q "%APP_DIR%\Admindashboard.fixed.jar" >nul 2>nul
 del /f /q "%APP_DIR%\Admindashboard.home.jar" >nul 2>nul
@@ -52,7 +57,33 @@ del /f /q "%APP_DIR%\Admindashboard.route.jar" >nul 2>nul
 del /f /q "%APP_DIR%\jartmp*.tmp" >nul 2>nul
 del /f /q "%APP_DIR%\CSC*.TMP" >nul 2>nul
 
-echo [2/5] Checking XAMPP folder...
+echo [2/6] Checking Java/JDK installation...
+set "JAVA_FOUND=0"
+where javaw >nul 2>nul && set "JAVA_FOUND=1"
+if exist "C:\Program Files\BellSoft\LibericaJDK-25-Full\bin\javaw.exe" set "JAVA_FOUND=1"
+if exist "C:\Program Files\BellSoft\LibericaJDK-21-Full\bin\javaw.exe" set "JAVA_FOUND=1"
+
+if "%JAVA_FOUND%"=="0" (
+    echo Java/JDK with JavaFX support was not found on this computer.
+    if defined JAVA_INSTALLER (
+        echo Found bundled Liberica JDK installer:
+        echo %JAVA_INSTALLER%
+        echo.
+        choice /M "Install Liberica JDK Full now"
+        if errorlevel 2 (
+            echo Skipping Java installation. Note: ACADexa requires Java to run.
+        ) else (
+            echo Launching Java installer...
+            start /wait "" msiexec /i "%JAVA_INSTALLER%"
+        )
+    ) else (
+        echo WARNING: Bundled Java installer not found. Please install Liberica JDK Full manually.
+    )
+) else (
+    echo Java/JDK is installed.
+)
+
+echo [3/6] Checking XAMPP folder...
 if not exist "C:\xampp\htdocs" (
     echo XAMPP was not found at C:\xampp.
     if defined XAMPP_INSTALLER (
@@ -81,7 +112,7 @@ if not exist "C:\xampp\htdocs" (
     exit /b 1
 )
 
-echo [3/5] Copying quiz_system files to XAMPP...
+echo [4/6] Copying quiz_system files to XAMPP...
 if not exist "%WEB_DEST%" mkdir "%WEB_DEST%"
 xcopy "%WEB_SRC%\*" "%WEB_DEST%\" /E /I /Y >nul
 if errorlevel 1 (
@@ -91,7 +122,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [4/5] Importing database setup...
+echo [5/6] Importing database setup...
 if exist "%MYSQL_EXE%" (
     "%MYSQL_EXE%" -u root < "%DB_SQL%"
     if errorlevel 1 (
@@ -105,7 +136,7 @@ if exist "%MYSQL_EXE%" (
     echo Import Database\setup_database.sql manually in phpMyAdmin.
 )
 
-echo [5/5] Creating desktop shortcut...
+echo [6/6] Creating desktop shortcut...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $shortcut=Join-Path $desktop 'ACADexa.lnk'; if (Test-Path $shortcut) { Remove-Item $shortcut -Force }; $s=(New-Object -COM WScript.Shell).CreateShortcut($shortcut); $s.TargetPath='%APP_EXE%'; $s.WorkingDirectory='%APP_DIR%'; $s.IconLocation='%APP_EXE%,0'; $s.Save()"
 if errorlevel 1 (
     echo ERROR: Could not create the desktop shortcut.
