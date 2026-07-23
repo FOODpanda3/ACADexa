@@ -57,9 +57,10 @@
 
             <HBox alignment="CENTER_LEFT" spacing="12.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#handleGeneratePin" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Generate PIN" />
-                  <Button mnemonicParsing="false" onAction="#handleGenerateMissingPins" prefHeight="35.0" prefWidth="190.0" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Generate Missing PINs" />
-                  <Label text="Select one student to create a PIN, or create PINs for all students with blank PINs." textFill="#666666" wrapText="true" />
+                  <Button mnemonicParsing="false" onAction="#handleGeneratePin" prefHeight="35.0" prefWidth="130.0" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Generate PIN" />
+                  <Button mnemonicParsing="false" onAction="#handleGenerateMissingPins" prefHeight="35.0" prefWidth="170.0" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="Generate Missing PINs" />
+                  <Button mnemonicParsing="false" onAction="#handlePrintSlips" prefHeight="35.0" prefWidth="180.0" style="-fx-background-color: #2b5876; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="🖨️ Print Credential Slips" />
+                  <Label text="Select one student to create a PIN, or create PINs for all." textFill="#666666" wrapText="true" />
                </children>
             </HBox>
 

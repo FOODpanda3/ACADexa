@@ -342,6 +342,8 @@ public class DashboardController implements Initializable {
         } catch (Exception e) {}
     }
 
+    private final java.util.Set<String> knownBlockedStudents = new java.util.HashSet<>();
+
     private void loadLiveSessionsFromDatabase() {
         if (liveTable == null || cbLiveExamFilter == null) return;
         String selectedExam = cbLiveExamFilter.getValue();
@@ -355,18 +357,58 @@ public class DashboardController implements Initializable {
             pstmt.setString(1, selectedExam);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    liveSessionList.add(new LiveSession(
-                        rs.getString("student_id_number"),
-                        rs.getString("student_name"),
-                        rs.getString("section"),
-                        rs.getString("status"),
-                        rs.getString("progress"),
-                        rs.getString("last_ping")
-                    ));
+                    String sid = rs.getString("student_id_number");
+                    String sname = rs.getString("student_name");
+                    String sec = rs.getString("section");
+                    String stat = rs.getString("status");
+                    String prog = rs.getString("progress");
+                    String lastPing = rs.getString("last_ping");
+
+                    liveSessionList.add(new LiveSession(sid, sname, sec, stat, prog, lastPing));
+
+                    // 🔊 AUDIO CHIME ALERT: Trigger system sound when a student gets blocked or tab-switches!
+                    if (stat != null && (stat.toLowerCase().contains("blocked") || stat.toLowerCase().contains("tab left") || stat.toLowerCase().contains("terminated"))) {
+                        String blockKey = selectedExam + "_" + sid + "_" + stat;
+                        if (!knownBlockedStudents.contains(blockKey)) {
+                            knownBlockedStudents.add(blockKey);
+                            try {
+                                java.awt.Toolkit.getDefaultToolkit().beep();
+                            } catch (Exception ignored) {}
+                        }
+                    }
                 }
             }
             applyLiveSearchFilter();
         } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    private void handleExtendTime(ActionEvent event) {
+        String selectedExam = cbLiveExamFilter != null ? cbLiveExamFilter.getValue() : null;
+        if (selectedExam == null || selectedExam.trim().isEmpty()) {
+            if (statusLabel != null) statusLabel.setText("Status: Select an exam in Live Monitor first.");
+            return;
+        }
+
+        String sql = "UPDATE exams SET time_limit = time_limit + 5 WHERE title = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, selectedExam);
+            int updated = pstmt.executeUpdate();
+
+            if (updated > 0) {
+                if (statusLabel != null) {
+                    statusLabel.setText("Status: Added +5 minutes to " + selectedExam + " time limit!");
+                }
+                showAlert(AlertType.INFORMATION, "Time Extended", "Granted +5 extra minutes to exam: " + selectedExam);
+                loadExamsFromDatabase();
+            } else {
+                if (statusLabel != null) statusLabel.setText("Status: Could not find exam to extend time.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (statusLabel != null) statusLabel.setText("Status: Error extending time limit.");
+        }
     }
 
     @FXML private void handleClearLiveSessions(ActionEvent event) {

@@ -1486,10 +1486,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['check_pin_ajax'])) {
         });
 
         function startTimer() {
-            // ðŸŒŸ NaN JS FIX: Use raw PHP echo to inject the number natively ðŸŒŸ
             let totalSeconds = <?php echo $time_limit_minutes; ?> * 60; 
 
             const timerDisplay = document.getElementById('timer-display');
+            const timerBanner = document.getElementById('timer-banner');
 
             timerInterval = setInterval(() => {
                 if (isExamLocked) {
@@ -1498,11 +1498,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['check_pin_ajax'])) {
                 }
 
                 totalSeconds--;
+                if (totalSeconds < 0) totalSeconds = 0;
+
                 let minutes = Math.floor(totalSeconds / 60);
                 let seconds = totalSeconds % 60;
                 if (seconds < 10) seconds = "0" + seconds; 
                 
-                timerDisplay.innerText = minutes + ":" + seconds;
+                if (timerDisplay) {
+                    timerDisplay.innerText = minutes + ":" + seconds;
+                }
+
+                if (totalSeconds <= 120 && totalSeconds > 0) {
+                    if (timerBanner) {
+                        timerBanner.style.background = "#d9534f";
+                        timerBanner.style.boxShadow = "0 0 15px rgba(217, 83, 79, 0.8)";
+                    }
+                }
 
                 if (totalSeconds <= 0) {
                     clearInterval(timerInterval);

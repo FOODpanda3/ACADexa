@@ -342,6 +342,62 @@ public class ManagestudentController implements Initializable {
     }
 
     @FXML
+    private void handlePrintSlips(ActionEvent event) {
+        if (sortedStudents == null || sortedStudents.isEmpty()) {
+            showError("No Students", "There are no student records to print.");
+            return;
+        }
+
+        try {
+            StringBuilder html = new StringBuilder();
+            html.append("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Student Credential Slips</title>")
+                .append("<style>")
+                .append("body { font-family: Arial, sans-serif; background: #fff; margin: 20px; padding: 0; }")
+                .append(".grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }")
+                .append(".slip { border: 2px dashed #1d2b53; border-radius: 8px; padding: 15px; background: #f9fafb; position: relative; }")
+                .append(".header { font-size: 16px; font-weight: bold; color: #1d2b53; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 10px; }")
+                .append(".row { font-size: 14px; margin-bottom: 6px; }")
+                .append(".label { font-weight: bold; color: #555; }")
+                .append(".val { color: #111; font-weight: bold; }")
+                .append(".pin { font-size: 18px; color: #2b5876; letter-spacing: 2px; }")
+                .append("@media print { .no-print { display: none; } }")
+                .append("</style></head><body>")
+                .append("<div class='no-print' style='margin-bottom:20px;'><button onclick='window.print()' style='padding:10px 20px; background:#1d2b53; color:white; border:none; border-radius:5px; font-weight:bold; font-size:16px; cursor:pointer;'>🖨️ Print All Slips</button></div>")
+                .append("<div class='grid'>");
+
+            for (DashboardController.Student student : sortedStudents) {
+                String pinText = (student.getPin() != null && !student.getPin().trim().isEmpty()) ? student.getPin() : "[No PIN Assigned]";
+                html.append("<div class='slip'>")
+                    .append("<div class='header'>ACADexa - Student Login Slip</div>")
+                    .append("<div class='row'><span class='label'>Name: </span><span class='val'>").append(escapeHtml(student.getFullName())).append("</span></div>")
+                    .append("<div class='row'><span class='label'>Class / Section: </span><span class='val'>").append(escapeHtml(student.getSection())).append("</span></div>")
+                    .append("<div class='row'><span class='label'>Student Code: </span><span class='val'>").append(escapeHtml(student.getStudentCode())).append("</span></div>")
+                    .append("<div class='row'><span class='label'>Secret PIN: </span><span class='val pin'>").append(escapeHtml(pinText)).append("</span></div>")
+                    .append("</div>");
+            }
+
+            html.append("</div></body></html>");
+
+            java.io.File tempFile = java.io.File.createTempFile("ACADexa_Student_Slips_", ".html");
+            tempFile.deleteOnExit();
+            try (java.io.FileWriter writer = new java.io.FileWriter(tempFile)) {
+                writer.write(html.toString());
+            }
+
+            java.awt.Desktop.getDesktop().browse(tempFile.toURI());
+            showInfo("Print Preview Opened", "Generated slips for " + sortedStudents.size() + " student(s).\nPrint preview opened in your default browser.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Print Error", "Could not generate student credential slips: " + e.getMessage());
+        }
+    }
+
+    private String escapeHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    }
+
+    @FXML
     private void handleFilter(Event event) {
         String selected = cbSectionFilter.getValue();
         String search = txtSearchStudent != null && txtSearchStudent.getText() != null

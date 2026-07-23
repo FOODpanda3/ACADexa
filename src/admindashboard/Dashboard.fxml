@@ -216,8 +216,9 @@
                                <TextField fx:id="txtLiveSearch" onKeyReleased="#handleLiveSearch" prefWidth="220.0" promptText="Search student or section" />
                                <Button mnemonicParsing="false" onAction="#handleBlockLiveStudent" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold;" text="Block Student" />
                                <Button mnemonicParsing="false" onAction="#handleUnblockLiveStudent" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold;" text="Unblock Student" />
+                               <Button mnemonicParsing="false" onAction="#handleExtendTime" style="-fx-background-color: #2b5876; -fx-text-fill: white; -fx-font-weight: bold;" text="⏱️ +5 Mins Time" />
                                <Button mnemonicParsing="false" onAction="#handleClearLiveSessions" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Clear Offline Students" />
-                                <Label text="(Refreshes automatically every 3 seconds)" textFill="#888888" />
+                               <Label text="(Refreshes automatically every 3 seconds)" textFill="#888888" />
                              </children>
                           </HBox>
                         <TableView fx:id="liveTable" VBox.vgrow="ALWAYS">
