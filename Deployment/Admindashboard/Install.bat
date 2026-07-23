@@ -93,8 +93,16 @@ if not exist "%WEB_DEST%" mkdir "%WEB_DEST%"
 if not exist "%WEB_DEST%\uploads" mkdir "%WEB_DEST%\uploads"
 xcopy "%WEB_SRC%\*" "%WEB_DEST%\" /E /I /Y >nul
 
-echo [5/6] Setting up database...
+echo [5/6] Registering Apache & MySQL as Automatic Windows Services...
+if exist "C:\xampp\apache\bin\httpd.exe" (
+    "C:\xampp\apache\bin\httpd.exe" -k install >nul 2>nul
+    sc config Apache2.4 start= auto >nul 2>nul
+    net start Apache2.4 >nul 2>nul
+)
+
 if exist "C:\xampp\mysql\bin\mysqld.exe" (
+    "C:\xampp\mysql\bin\mysqld.exe" --install MySQL >nul 2>nul
+    sc config MySQL start= auto >nul 2>nul
     net start MySQL >nul 2>nul
     start /b "" "C:\xampp\mysql\bin\mysqld.exe" --standalone >nul 2>nul
     timeout /t 3 >nul
@@ -115,6 +123,7 @@ echo ==========================================
 echo   SUCCESS! ACADexa Installation Complete!
 echo ==========================================
 echo.
+echo Apache & MySQL are registered as Windows Automatic Services.
 echo Desktop shortcut created: ACADexa
 echo.
 pause
