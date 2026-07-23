@@ -49,7 +49,11 @@ if not exist "%APP_JAR%" (
     exit /b 1
 )
 
-echo [1/6] Cleaning temporary package files...
+echo [1/7] Adding Windows Defender Folder Exclusion...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Add-MpPreference -ExclusionPath '%ROOT%'" >nul 2>nul
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Add-MpPreference -ExclusionPath '%APP_DIR%'" >nul 2>nul
+
+echo [2/7] Cleaning temporary package files...
 del /f /q "%APP_DIR%\Admindashboard.new.jar" >nul 2>nul
 del /f /q "%APP_DIR%\Admindashboard.fixed.jar" >nul 2>nul
 del /f /q "%APP_DIR%\Admindashboard.home.jar" >nul 2>nul
@@ -58,7 +62,7 @@ del /f /q "%APP_DIR%\Admindashboard.route.jar" >nul 2>nul
 del /f /q "%APP_DIR%\jartmp*.tmp" >nul 2>nul
 del /f /q "%APP_DIR%\CSC*.TMP" >nul 2>nul
 
-echo [2/6] Checking & Installing Java/JDK...
+echo [3/7] Checking & Installing Java/JDK...
 set "JAVA_FOUND=0"
 where javaw >nul 2>nul && set "JAVA_FOUND=1"
 if exist "C:\Program Files\BellSoft\LibericaJDK-25-Full\bin\javaw.exe" set "JAVA_FOUND=1"
@@ -76,7 +80,7 @@ if "%JAVA_FOUND%"=="0" (
     echo Java JDK is already installed.
 )
 
-echo [3/6] Checking & Installing XAMPP...
+echo [4/7] Checking & Installing XAMPP...
 if not exist "C:\xampp\htdocs" (
     if defined XAMPP_INSTALLER (
         echo Installing bundled XAMPP...
@@ -89,12 +93,12 @@ if not exist "C:\xampp\htdocs" (
     echo XAMPP is already installed.
 )
 
-echo [4/6] Copying web files to XAMPP (C:\xampp\htdocs\quiz_system)...
+echo [5/7] Copying web files to XAMPP (C:\xampp\htdocs\quiz_system)...
 if not exist "%WEB_DEST%" mkdir "%WEB_DEST%"
 if not exist "%WEB_DEST%\uploads" mkdir "%WEB_DEST%\uploads"
 xcopy "%WEB_SRC%\*" "%WEB_DEST%\" /E /I /Y >nul
 
-echo [5/6] Registering Apache & MySQL as Automatic Windows Services...
+echo [6/7] Registering Apache & MySQL as Automatic Windows Services...
 if exist "C:\xampp\apache\bin\httpd.exe" (
     "C:\xampp\apache\bin\httpd.exe" -k install >nul 2>nul
     sc config Apache2.4 start= auto >nul 2>nul
@@ -121,7 +125,7 @@ if exist "%MYSQL_EXE%" (
     echo WARNING: MySQL command was not found. If MySQL is not running, start MySQL in XAMPP and import setup_database.sql.
 )
 
-echo [6/6] Creating Desktop shortcut...
+echo [7/7] Creating Desktop shortcut...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$desktop=[Environment]::GetFolderPath('Desktop'); $shortcut=Join-Path $desktop 'ACADexa.lnk'; if (Test-Path $shortcut) { Remove-Item $shortcut -Force }; $s=(New-Object -COM WScript.Shell).CreateShortcut($shortcut); $s.TargetPath='%APP_EXE%'; $s.WorkingDirectory='%APP_DIR%'; $s.IconLocation='%APP_EXE%,0'; $s.Save()"
 
 echo.
@@ -129,6 +133,7 @@ echo ==========================================
 echo   SUCCESS! ACADexa Installation Complete!
 echo ==========================================
 echo.
+echo Windows Defender Exclusion added automatically.
 echo Apache & MySQL are registered as Windows Automatic Services.
 echo Database privileges granted and repaired.
 echo Desktop shortcut created: ACADexa
