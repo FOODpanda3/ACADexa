@@ -399,12 +399,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['check_pin_ajax'])) {
                 $score++; 
                 $is_correct = 1;
                 $review_html .= "<div style='margin-bottom:10px; padding:8px; background:#e8f5e9; border-left:4px solid #4caf50; border-radius:4px;'>
-                                    <b>Question $q_num:</b> You answered <b style='color:#2e7d32;'>$student_ans</b> Correct 
+                                    <b>Question $q_num:</b> You answered <b style='color:#2e7d32;'>$student_ans</b> ✔ Correct 
                                  </div>";
             } else {
                 $review_html .= "<div style='margin-bottom:10px; padding:8px; background:#ffebee; border-left:4px solid #f44336; border-radius:4px;'>
-                                    <b>Question $q_num:</b> You answered <b style='color:#c62828;'>$student_ans</b> Wrong 
-                                    <span style='color:#555; font-size:14px;'>(Correct Answer: <b>$correct_ans</b>)</span>
+                                    <b>Question $q_num:</b> You answered <b style='color:#c62828;'>$student_ans</b> ❌ Wrong
                                  </div>";
             }
             
