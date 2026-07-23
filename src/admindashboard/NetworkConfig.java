@@ -24,7 +24,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 /**
- * Utility for managing server host IP, automatic Ngrok tunnel detection,
+ * Utility for managing server host IP, automatic Ngrok background execution & tunnel detection,
  * custom domain configuration, and generating student answer URLs for QR code creation.
  */
 public class NetworkConfig {
@@ -32,8 +32,13 @@ public class NetworkConfig {
     private static final String CONFIG_FILE = "server_config.properties";
     private static Properties properties = new Properties();
 
+    private static Process ngrokProcess = null;
+    private static boolean attemptedAutoStart = false;
+
     static {
         loadConfig();
+        // Asynchronously check/launch background Ngrok process on startup
+        new Thread(NetworkConfig::ensureNgrokRunning).start();
     }
 
     private static synchronized void loadConfig() {
@@ -74,17 +79,57 @@ public class NetworkConfig {
     }
 
     /**
-     * ⚡ AUTOMATIC NGROK DETECTOR
-     * Queries the local Ngrok client REST API on port 4040.
-     * Returns the active public URL (e.g. "https://xxxx.ngrok-free.app") if Ngrok is running,
-     * or null if Ngrok is not active.
+     * ⚡ AUTOMATIC NGROK BACKGROUND LAUNCHER
+     * Automatically starts 'ngrok http 80' silently in the background if ngrok is available
+     * and not already running. Automatically kills ngrok when ACADexa exits.
      */
-    public static String getAutoDetectedNgrokUrl() {
+    public static synchronized void ensureNgrokRunning() {
+        if (attemptedAutoStart) return;
+        attemptedAutoStart = true;
+
+        if (checkNgrokApi() != null) {
+            System.out.println("⚡ Live Ngrok tunnel is already active.");
+            return;
+        }
+
+        try {
+            String ngrokCmd = "ngrok";
+            File localNgrok = new File("ngrok.exe");
+            if (localNgrok.exists()) {
+                ngrokCmd = localNgrok.getAbsolutePath();
+            }
+
+            ProcessBuilder pb = new ProcessBuilder(ngrokCmd, "http", "80");
+            pb.redirectErrorStream(true);
+            ngrokProcess = pb.start();
+
+            System.out.println("⚡ Auto-started background Ngrok tunnel (" + ngrokCmd + ")");
+
+            // Register shutdown hook to clean up Ngrok process when application exits
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (ngrokProcess != null && ngrokProcess.isAlive()) {
+                    ngrokProcess.destroyForcibly();
+                    System.out.println("⚡ Closed background Ngrok tunnel.");
+                }
+            }));
+
+            // Pause briefly to allow Ngrok tunnel to initialize its REST API
+            Thread.sleep(1200);
+
+        } catch (Exception e) {
+            System.out.println("ℹ️ Ngrok executable not found or failed to auto-start. Using Local Wi-Fi IP.");
+        }
+    }
+
+    /**
+     * Helper to query local Ngrok REST API.
+     */
+    private static String checkNgrokApi() {
         try {
             URL url = new URL("http://127.0.0.1:4040/api/tunnels");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(300); // 300ms fast local check
-            conn.setReadTimeout(300);
+            conn.setConnectTimeout(400); // fast local check
+            conn.setReadTimeout(400);
             conn.setRequestMethod("GET");
             if (conn.getResponseCode() == 200) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
@@ -95,7 +140,6 @@ public class NetworkConfig {
                     }
                     String json = sb.toString();
 
-                    // Search for "public_url":"https://..."
                     int idx = json.indexOf("\"public_url\":\"https://");
                     if (idx != -1) {
                         int start = idx + 14;
@@ -105,7 +149,6 @@ public class NetworkConfig {
                         }
                     }
 
-                    // Fallback to "public_url":"http://..."
                     idx = json.indexOf("\"public_url\":\"http://");
                     if (idx != -1) {
                         int start = idx + 14;
@@ -116,10 +159,23 @@ public class NetworkConfig {
                     }
                 }
             }
-        } catch (Exception ignored) {
-            // Ngrok API not responding (Ngrok is not running locally)
-        }
+        } catch (Exception ignored) {}
         return null;
+    }
+
+    /**
+     * ⚡ AUTOMATIC NGROK DETECTOR
+     * Queries the local Ngrok client REST API on port 4040.
+     * Returns the active public URL (e.g. "https://xxxx.ngrok-free.app") if Ngrok is running,
+     * or null if Ngrok is not active.
+     */
+    public static String getAutoDetectedNgrokUrl() {
+        String liveUrl = checkNgrokApi();
+        if (liveUrl == null && !attemptedAutoStart) {
+            ensureNgrokRunning();
+            liveUrl = checkNgrokApi();
+        }
+        return liveUrl;
     }
 
     /**
@@ -171,7 +227,7 @@ public class NetworkConfig {
     /**
      * Constructs the full student answer URL given the query parameters.
      * 100% AUTOMATIC:
-     * 1. Auto-detects running Ngrok tunnel (http://127.0.0.1:4040).
+     * 1. Auto-launches & detects running Ngrok tunnel (http://127.0.0.1:4040).
      * 2. Falls back to saved custom domain if enabled.
      * 3. Falls back to local Wi-Fi IP (http://192.168.x.x).
      */
@@ -226,7 +282,7 @@ public class NetworkConfig {
 
         String liveNgrok = getAutoDetectedNgrokUrl();
         Label lblNgrokStatus = new Label("Live Ngrok Tunnel: " + 
-            (liveNgrok != null ? "⚡ ACTIVE (" + liveNgrok + ")" : "❌ Not Running (Start 'ngrok http 80' in terminal)"));
+            (liveNgrok != null ? "⚡ ACTIVE (" + liveNgrok + ")" : "❌ Not Running (Local Wi-Fi Active)"));
         lblNgrokStatus.setStyle(liveNgrok != null ? "-fx-text-fill: green; -fx-font-weight: bold;" : "-fx-text-fill: #666;");
 
         Label lblLocalIP = new Label("Local Wi-Fi IP: http://" + getLocalWiFiIP());
