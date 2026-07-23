@@ -209,7 +209,7 @@ public class ManageExamsController implements Initializable {
 
     private void browsePDF(boolean isQuiz, ActionEvent event) {
         FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Exam Files (*.pdf, *.png, *.jpg, *.jpeg, *.webp)", "*.pdf", "*.png", "*.jpg", "*.jpeg", "*.webp"));
         File f = fc.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
         if (f != null) {
             if (isQuiz) { selectedQuizFile = f; lblQuizFile.setText(f.getName()); }

@@ -1414,6 +1414,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['check_pin_ajax'])) {
                             "<p>Ensure it is saved in the 'uploads' folder.</p>" +
                             "</div>";
                     });
+                } else if (lowerUrl.endsWith('.png') || lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg') || lowerUrl.endsWith('.webp') || lowerUrl.endsWith('.gif')) {
+                    document.getElementById('pdf-viewer-container').innerHTML = 
+                        "<img src='" + encodedUrl + "' style='max-width:98%; height:auto; margin:10px auto; display:block; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.3);'>";
+                    const headerEl = document.getElementById('pdf-page-num');
+                    if (headerEl && headerEl.parentElement) {
+                        headerEl.parentElement.innerText = "EXAM/QUIZ IMAGE PAPER";
+                    }
                 } else if (lowerUrl.endsWith('.doc') || lowerUrl.endsWith('.docx')) {
                     // BLOCK GOOGLE DOCS (It crashes offline)
                     document.getElementById('pdf-viewer-container').innerHTML = 

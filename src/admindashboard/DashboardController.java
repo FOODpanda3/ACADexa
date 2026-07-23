@@ -873,7 +873,7 @@ public class DashboardController implements Initializable {
 
     @FXML private void handleBrowseFile(ActionEvent e) {
         FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Exam Files (*.pdf, *.png, *.jpg, *.jpeg, *.webp)", "*.pdf", "*.png", "*.jpg", "*.jpeg", "*.webp"));
         selectedFile = fc.showOpenDialog(null);
         if(selectedFile != null) {
             if (fileNameLabel != null) fileNameLabel.setText(selectedFile.getName());
