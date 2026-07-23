@@ -17,6 +17,7 @@ set "WEB_SRC=%APP_DIR%\quiz_system"
 set "WEB_DEST=C:\xampp\htdocs\quiz_system"
 set "DB_SQL=%ROOT%Database\setup_database.sql"
 set "MYSQL_EXE=C:\xampp\mysql\bin\mysql.exe"
+set "MYSQL_CHECK=C:\xampp\mysql\bin\mysqlcheck.exe"
 set "XAMPP_INSTALLER="
 set "JAVA_INSTALLER="
 
@@ -108,7 +109,12 @@ if exist "C:\xampp\mysql\bin\mysqld.exe" (
     timeout /t 3 >nul
 )
 
+if exist "%MYSQL_CHECK%" (
+    "%MYSQL_CHECK%" -u root --repair --all-databases >nul 2>nul
+)
+
 if exist "%MYSQL_EXE%" (
+    "%MYSQL_EXE%" -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION; GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%%' WITH GRANT OPTION; FLUSH PRIVILEGES;" >nul 2>nul
     "%MYSQL_EXE%" -u root < "%DB_SQL%" >nul 2>nul
     echo Database setup completed.
 ) else (
@@ -124,6 +130,7 @@ echo   SUCCESS! ACADexa Installation Complete!
 echo ==========================================
 echo.
 echo Apache & MySQL are registered as Windows Automatic Services.
+echo Database privileges granted and repaired.
 echo Desktop shortcut created: ACADexa
 echo.
 pause
