@@ -18,7 +18,6 @@
       <ToolBar fx:id="manageExamsToolbar" prefHeight="50.0" prefWidth="850.0" style="-fx-background-color: #2b5876;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
           <Button onAction="#handleBack" style="-fx-background-color: #ffffff; -fx-cursor: hand; -fx-font-weight: bold;" text="Back to Dashboard" />
-          <Button onAction="#handleConfigureNetwork" style="-fx-background-color: #5bc0de; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;" text="🌐 Network / Ngrok Settings" />
         </items>
       </ToolBar>
 
