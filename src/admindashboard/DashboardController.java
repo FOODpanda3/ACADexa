@@ -24,6 +24,7 @@ import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -101,7 +102,14 @@ public class DashboardController implements Initializable {
     private File selectedAnswerKeyFile;
     private ExamItem selectedExam = null;
 
+    @FXML private ComboBox<String> cbStudentSortDashboard;
+    @FXML private TextField txtSearchStudentDashboard;
+    @FXML private Label lblDashboardSelectedStudentInfo;
+
     private ObservableList<Student> studentList = FXCollections.observableArrayList();
+    private FilteredList<Student> filteredDashboardStudents;
+    private SortedList<Student> sortedDashboardStudents;
+
     private ObservableList<ExamItem> examList = FXCollections.observableArrayList();
     private ObservableList<Score> scoreList = FXCollections.observableArrayList();
     private final ObservableList<LiveSession> liveSessionList = FXCollections.observableArrayList();
@@ -115,6 +123,28 @@ public class DashboardController implements Initializable {
         if (liveTable != null) liveTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         filteredLiveSessionList = new FilteredList<>(liveSessionList, item -> true);
         if (liveTable != null) liveTable.setItems(filteredLiveSessionList);
+
+        populateDashboardSortDropdown();
+        filteredDashboardStudents = new FilteredList<>(studentList, s -> true);
+        sortedDashboardStudents = new SortedList<>(filteredDashboardStudents);
+        sortedDashboardStudents.comparatorProperty().bind(classTable.comparatorProperty());
+        if (classTable != null) classTable.setItems(sortedDashboardStudents);
+
+        if (classTable != null) {
+            classTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+                if (newSel != null) {
+                    String pinText = (newSel.getPin() != null && !newSel.getPin().trim().isEmpty()) ? newSel.getPin() : "[No PIN]";
+                    if (lblDashboardSelectedStudentInfo != null) {
+                        lblDashboardSelectedStudentInfo.setText(String.format("Selected Student: %s   |   Student Code: %s   |   PIN: %s", 
+                                newSel.getFullName(), newSel.getStudentCode(), pinText));
+                    }
+                } else {
+                    if (lblDashboardSelectedStudentInfo != null) {
+                        lblDashboardSelectedStudentInfo.setText("Select a student from the table to view and copy their Code & PIN.");
+                    }
+                }
+            });
+        }
 
         File dir = new File(UPLOAD_DIR);
         if (!dir.exists()) dir.mkdirs();
@@ -264,6 +294,98 @@ public class DashboardController implements Initializable {
         if (headerLabel != null) headerLabel.setText("Manage Classes");
         setActiveSidebarButton(btnStudents);
         loadStudentsFromDatabase();
+    }
+
+    private void populateDashboardSortDropdown() {
+        if (cbStudentSortDashboard != null) {
+            cbStudentSortDashboard.getItems().clear();
+            cbStudentSortDashboard.getItems().addAll(
+                "Name (A - Z)",
+                "Name (Z - A)",
+                "Section / Class",
+                "Student ID Code",
+                "Missing PIN First"
+            );
+            cbStudentSortDashboard.getSelectionModel().select("Name (A - Z)");
+        }
+    }
+
+    @FXML
+    private void handleStudentSortDashboard(ActionEvent event) {
+        applyDashboardStudentSorting();
+    }
+
+    private void applyDashboardStudentSorting() {
+        String sortChoice = cbStudentSortDashboard != null && cbStudentSortDashboard.getValue() != null ? cbStudentSortDashboard.getValue() : "Name (A - Z)";
+        java.util.Comparator<Student> comp;
+
+        switch (sortChoice) {
+            case "Name (Z - A)":
+                comp = (a, b) -> b.getFullName().compareToIgnoreCase(a.getFullName());
+                break;
+            case "Section / Class":
+                comp = (a, b) -> {
+                    int res = a.getSection().compareToIgnoreCase(b.getSection());
+                    return res != 0 ? res : a.getFullName().compareToIgnoreCase(b.getFullName());
+                };
+                break;
+            case "Student ID Code":
+                comp = (a, b) -> a.getStudentCode().compareToIgnoreCase(b.getStudentCode());
+                break;
+            case "Missing PIN First":
+                comp = (a, b) -> {
+                    boolean aEmpty = a.getPin() == null || a.getPin().trim().isEmpty();
+                    boolean bEmpty = b.getPin() == null || b.getPin().trim().isEmpty();
+                    if (aEmpty != bEmpty) return aEmpty ? -1 : 1;
+                    return a.getFullName().compareToIgnoreCase(b.getFullName());
+                };
+                break;
+            case "Name (A - Z)":
+            default:
+                comp = (a, b) -> a.getFullName().compareToIgnoreCase(b.getFullName());
+                break;
+        }
+
+        if (sortedDashboardStudents != null) {
+            sortedDashboardStudents.setComparator(comp);
+        }
+    }
+
+    @FXML
+    private void handleStudentFilterDashboard(Event event) {
+        String search = txtSearchStudentDashboard != null && txtSearchStudentDashboard.getText() != null
+                ? txtSearchStudentDashboard.getText().trim().toLowerCase()
+                : "";
+
+        if (filteredDashboardStudents != null) {
+            filteredDashboardStudents.setPredicate(student -> {
+                if (search.isEmpty()) return true;
+                String code = student.getStudentCode() == null ? "" : student.getStudentCode().toLowerCase();
+                String name = student.getFullName() == null ? "" : student.getFullName().toLowerCase();
+                String section = student.getSection() == null ? "" : student.getSection().toLowerCase();
+                String pin = student.getPin() == null ? "" : student.getPin().toLowerCase();
+                return code.contains(search) || name.contains(search) || section.contains(search) || pin.contains(search);
+            });
+        }
+        applyDashboardStudentSorting();
+    }
+
+    @FXML
+    private void handleDashboardCopyCode(ActionEvent event) {
+        Student selected = classTable != null ? classTable.getSelectionModel().getSelectedItem() : null;
+        if (selected == null) {
+            showAlert(AlertType.WARNING, "No Selection", "Please select a student from the table first.");
+            return;
+        }
+
+        String pinStr = (selected.getPin() != null && !selected.getPin().trim().isEmpty()) ? selected.getPin() : "[No PIN]";
+        String copyText = String.format("Student: %s | Student Code: %s | PIN: %s", selected.getFullName(), selected.getStudentCode(), pinStr);
+
+        javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+        content.putString(copyText);
+        javafx.scene.input.Clipboard.getSystemClipboard().setContent(content);
+
+        showAlert(AlertType.INFORMATION, "Copied!", "Copied to Clipboard:\n" + copyText);
     }
 
     @FXML private void handleViewScores(ActionEvent e) {
@@ -507,7 +629,12 @@ public class DashboardController implements Initializable {
                     rs.getString("pin")
                 ));
             }
-            if (classTable != null) classTable.setItems(studentList);
+            if (classTable != null && sortedDashboardStudents != null) {
+                classTable.setItems(sortedDashboardStudents);
+                applyDashboardStudentSorting();
+            } else if (classTable != null) {
+                classTable.setItems(studentList);
+            }
         } catch (Exception e) { e.printStackTrace(); }
     }
 

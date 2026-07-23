@@ -127,16 +127,30 @@
                      </children>
                   </VBox>
                   
-                  <VBox fx:id="paneManageClasses" managed="false" spacing="20.0" style="-fx-background-color: #f0f2f5;" visible="false">
+                  <VBox fx:id="paneManageClasses" managed="false" spacing="15.0" style="-fx-background-color: #f0f2f5;" visible="false">
                      <children>
-                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <TextField fx:id="txtClassName" prefWidth="200.0" promptText="Class Name" />
+                              <TextField fx:id="txtClassName" prefWidth="140.0" promptText="Class Name" />
                               <Button mnemonicParsing="false" onAction="#handleAddClass" style="-fx-background-color: #1d2b53; -fx-text-fill: white; -fx-font-weight: bold;" text="+ Add Class" />
-                              <Button mnemonicParsing="false" onAction="#handleUploadRoster" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;" text="Import Excel/CSV" />
+                              <Button mnemonicParsing="false" onAction="#handleUploadRoster" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;" text="Import Roster" />
                               <Button mnemonicParsing="false" onAction="#handleClearClassTable" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Clear Classes" />
+                              <Region HBox.hgrow="ALWAYS" />
+                              <Label text="Search:" textFill="#1d2b53"><font><Font name="System Bold" size="13.0" /></font></Label>
+                              <TextField fx:id="txtSearchStudentDashboard" onKeyReleased="#handleStudentFilterDashboard" prefWidth="150.0" promptText="Search name, ID or PIN" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 5; -fx-background-radius: 5;" />
+                              <Label text="Sort By:" textFill="#1d2b53"><font><Font name="System Bold" size="13.0" /></font></Label>
+                              <ComboBox fx:id="cbStudentSortDashboard" onAction="#handleStudentSortDashboard" prefWidth="140.0" promptText="Sort By" style="-fx-background-color: white; -fx-border-color: #1d2b53; -fx-border-radius: 5; -fx-background-radius: 5;" />
                            </children>
                         </HBox>
+                        
+                        <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #ffffff; -fx-padding: 8 12 8 12; -fx-background-radius: 5; -fx-border-color: #2b5876; -fx-border-radius: 5; -fx-border-width: 1.5;">
+                           <children>
+                              <Label fx:id="lblDashboardSelectedStudentInfo" text="Select a student from the table to view and copy their Code &amp; PIN." style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #1d2b53;" HBox.hgrow="ALWAYS" />
+                              <Region HBox.hgrow="ALWAYS" />
+                              <Button mnemonicParsing="false" onAction="#handleDashboardCopyCode" prefHeight="30.0" style="-fx-background-color: #2b5876; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;" text="📋 Copy Code &amp; PIN" />
+                           </children>
+                        </HBox>
+
                         <TableView fx:id="classTable" VBox.vgrow="ALWAYS">
                           <columns>
                             <TableColumn fx:id="colStudentCode" prefWidth="150.0" text="Code" />

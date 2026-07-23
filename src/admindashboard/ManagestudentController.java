@@ -294,32 +294,37 @@ public class ManagestudentController implements Initializable {
 
     private void applySorting() {
         String sortChoice = cbSortBy != null && cbSortBy.getValue() != null ? cbSortBy.getValue() : "Name (A - Z)";
-        
+        java.util.Comparator<DashboardController.Student> comp;
+
         switch (sortChoice) {
             case "Name (Z - A)":
-                allStudents.sort((a, b) -> b.getFullName().compareToIgnoreCase(a.getFullName()));
+                comp = (a, b) -> b.getFullName().compareToIgnoreCase(a.getFullName());
                 break;
             case "Section / Class":
-                allStudents.sort((a, b) -> {
+                comp = (a, b) -> {
                     int res = a.getSection().compareToIgnoreCase(b.getSection());
                     return res != 0 ? res : a.getFullName().compareToIgnoreCase(b.getFullName());
-                });
+                };
                 break;
             case "Student ID Code":
-                allStudents.sort((a, b) -> a.getStudentCode().compareToIgnoreCase(b.getStudentCode()));
+                comp = (a, b) -> a.getStudentCode().compareToIgnoreCase(b.getStudentCode());
                 break;
             case "Missing PIN First":
-                allStudents.sort((a, b) -> {
+                comp = (a, b) -> {
                     boolean aEmpty = a.getPin() == null || a.getPin().trim().isEmpty();
                     boolean bEmpty = b.getPin() == null || b.getPin().trim().isEmpty();
                     if (aEmpty != bEmpty) return aEmpty ? -1 : 1;
                     return a.getFullName().compareToIgnoreCase(b.getFullName());
-                });
+                };
                 break;
             case "Name (A - Z)":
             default:
-                allStudents.sort((a, b) -> a.getFullName().compareToIgnoreCase(b.getFullName()));
+                comp = (a, b) -> a.getFullName().compareToIgnoreCase(b.getFullName());
                 break;
+        }
+
+        if (sortedStudents != null) {
+            sortedStudents.setComparator(comp);
         }
     }
 
